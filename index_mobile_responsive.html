@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Employee Kit Assign</title>
+<style>
+body{font-family:Segoe UI,sans-serif;background:#f4f7fb;margin:0;padding:20px}
+.container{max-width:900px;margin:auto;background:#fff;padding:20px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+h1{background:#0d6efd;color:#fff;padding:15px;border-radius:8px}
+.row{display:flex;gap:15px;flex-wrap:wrap}.col{flex:1;min-width:220px}
+label{font-weight:bold;display:block;margin:10px 0 5px}
+input,select{width:100%;padding:10px}
+.checkbox-group label{display:inline-block;margin-right:15px;font-weight:normal}
+button{margin-top:15px;padding:10px 18px;border:none;border-radius:6px;cursor:pointer}
+.assign{background:#0d6efd;color:#fff}.export{background:#198754;color:#fff;margin-left:10px}
+table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #ccc;padding:8px}th{background:#0d6efd;color:#fff}
+
+@media (max-width:600px){
+body{padding:10px}
+.container{padding:12px}
+h1{font-size:22px;padding:10px}
+.row{flex-direction:column;gap:8px}
+.col{min-width:100%}
+button{width:100%;margin:8px 0 0}
+.export{margin-left:0}
+table{display:block;overflow-x:auto;white-space:nowrap}
+input,select{font-size:16px;box-sizing:border-box}
+}
+</style></head><body><div class="container">
+<h1>Employee Kit Assign</h1>
+<div class="row"><div class="col"><label>Full Name</label><input id="fullName"></div><div class="col"><label>Employee ID</label><input id="employeeId"></div></div>
+<div class="row"><div class="col"><label>SMP</label><input id="smp"></div><div class="col"><label>Job Role</label><select id="jobRole"><option>Technical</option><option>Rigger</option><option>Patroler</option><option>Supervisor</option></select></div></div>
+<div class="row"><div class="col"><label>Issue Date</label><input type="date" id="issueDate"></div><div class="col"><label>Photo</label><input type="file" id="photo"></div></div>
+<label>Kit Name</label><div class="checkbox-group">
+<label><input type="checkbox" value="Helmet">Helmet</label>
+<label><input type="checkbox" value="Jacket">Jacket</label>
+<label><input type="checkbox" value="Shoes">Shoes</label>
+<label><input type="checkbox" value="Gloves">Gloves</label>
+</div>
+<button class="assign" onclick="saveData()">Assign Kit</button>
+<button class="export" onclick="exportCSV()">Export CSV</button>
+<table><thead><tr><th>Name</th><th>ID</th><th>SMP</th><th>Role</th><th>Date</th><th>Kit</th><th>Photo</th><th>Action</th></tr></thead><tbody id="tbody"></tbody></table>
+</div>
+<script>
+issueDate.valueAsDate=new Date();
+let data=JSON.parse(localStorage.getItem('kits')||'[]');
+function render(){
+tbody.innerHTML='';
+data.forEach((r,i)=>{
+tbody.innerHTML+=`<tr><td>${r.n}</td><td>${r.id}</td><td>${r.s}</td><td>${r.j}</td><td>${r.d}</td><td>${r.k}</td><td>${r.p}</td><td><button onclick="del(${i})">Delete</button></td></tr>`;
+});
+localStorage.setItem('kits',JSON.stringify(data));
+}
+function saveData(){
+let kits=[...document.querySelectorAll("input[type=checkbox]:checked")].map(x=>x.value).join('|');
+data.push({n:fullName.value,id:employeeId.value,s:smp.value,j:jobRole.value,d:issueDate.value,k:kits,p:photo.files[0]?photo.files[0].name:''});
+render();
+document.querySelectorAll("input[type=text]").forEach(x=>x.value='');
+document.querySelectorAll("input[type=checkbox]").forEach(x=>x.checked=false);
+photo.value='';
+}
+function del(i){data.splice(i,1);render();}
+function exportCSV(){
+let csv="Name,Employee ID,SMP,Role,Issue Date,Kit,Photo\n";
+data.forEach(r=>csv+=`"${r.n}","${r.id}","${r.s}","${r.j}","${r.d}","${r.k}","${r.p}"\n`);
+let a=document.createElement('a');
+a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+a.download='Employee_Kit_Data.csv';a.click();
+}
+render();
+</script></body></html>
